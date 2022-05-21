@@ -9,7 +9,7 @@ string Mission::PrintStockData(string name, int year ){
 }
 
 string Mission::list_fetched_stocks() {
-    set<string> stocksSet = getSetOfAllTheFilesInDir(); /// get all the name files with .csv
+    set <string> stocksSet = getSetOfAllTheFilesInDir(); /// get all the name files with .csv
     set <string>::iterator itr;
     string result;
     /// convert the vector to string

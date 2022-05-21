@@ -9,6 +9,7 @@
 
 int main()
 {
+    cout << endl << endl;
     loadDB();
     signal(SIGINT, sigint_handler);
     pid_t p;
@@ -53,7 +54,7 @@ void worker() {
         int readSize = 2000;
         char stringFromWorker[readSize]; /// which task to do and task data
         char workerResponse[readSize]; /// the result of the task
-        string runSymbol, symbol;
+        string runSymbol, symbol, symbolWithStock, result;
         read(fd1[READ], stringFromWorker, readSize); /// read the data
         /// convert the string - the first char is the number option
         string st(stringFromWorker);
@@ -62,18 +63,35 @@ void worker() {
         int choose = stoi(choose_st); /// convert the number option to int
         Mission m;
 
+
         switch (choose) /// task
         {
             case 1: {/// fetch stock data
-                symbol = st.substr(0, st.find("-"));;
+                symbol = st.substr(0, st.find("-"));
                 runSymbol = "./fetchStockData.sh " + symbol;
                 system(runSymbol.c_str());
-
-                string result = "\n\nFetch " + symbol + " DONE";
+                symbolWithStock = symbol + ".stock";
+                ifstream f(symbolWithStock.c_str());
+                if(f.good() && f.peek() != std::ifstream::traits_type::eof()) {
+                    availableStockList.insert(symbol);
+                    result = "\nFetch " + symbol + " DONE\n";
+                }
+                else {
+                    result = "\nError while trying Fetch " + symbol + "\n";
+                }
                 strcpy(workerResponse, &result[0]);
+                break;
             }
             case 2: { /// make a list of all the fetched stocks in convert it to string with space between the stocks
-                string result = m.list_fetched_stocks();
+                /*string result = m.list_fetched_stocks();
+                strcpy(workerResponse, &result[0]);
+                result = "echo \"" + result + "\"";
+                system(result.c_str());
+                */
+                result = "Available stocks: ";
+                for (auto it : availableStockList) {
+                    result = result + it + " ";
+                }
                 strcpy(workerResponse, &result[0]);
                 break;
             }
@@ -91,8 +109,8 @@ void worker() {
             }
 
             case 4: { /// create and save all csv file
-                string result = "List of fetched stocks: \n";
-                result +=m.exportAndCreateDBStocksData();
+                string result = "\nList of fetched stocks: \n";
+                result += m.exportAndCreateDBStocksData();
                 strcpy(workerResponse, &result[0]);
                 break;
             }
@@ -110,6 +128,7 @@ void parent(){
 
     while (true)
     {
+        cout << endl;
         printMenu();
         int input = userInput();
         string st = to_string(input)+"-";  /// separate between the input to other data
@@ -117,7 +136,7 @@ void parent(){
             case 1:
                 cout << "Enter stocks symbol to fetch: ";
                 cin >> symbol;
-                st = st + "-" + symbol;
+                st += symbol;
                 break;
             case 3:
                 st += userInputWhichStockAndYear();
@@ -144,7 +163,7 @@ void printMenu(){
     std::cout << "2 - List fetched stocks" << endl;
     std::cout << "3 - print stocks data" << endl;
     std::cout << "4 - Save all stocks data" << endl;
-    std::cout << "Make your choce (1/2/3/4):" << endl;
+    std::cout << "Make your choice (1/2/3/4):" << endl;
 }
 int userInput(){
     /// get input and check if it is valid input
@@ -168,7 +187,7 @@ int userInput(){
 string userInputWhichStockAndYear() {///for print stock data task
     string stockSymbol;
     string year;
-    cout << "Enter one stock symbol and the year after"<<endl;
+    cout << endl << "Enter one stock symbol and the year after"<<endl;
     cout << "Stock symbol: ";
     cin >> stockSymbol;
     cout << "Year: ";
@@ -205,4 +224,25 @@ void cleanup()///close all the pipe
 
     close(fd2[READ]);
     close(fd2[WRITE]);
+
+    system("rm -f *.stock");
+    system("rm -f *.esp");
+
 }
+
+/*
+
+void makeCSV(){
+    FILE* file;
+    char name[100];
+    int size=Stock[0].size;
+    strcpy(name, Stock[0].stockName);
+    strcat(name, ".csv");
+    file = fopen(name, "w+");
+    fprintf(file,"Time, Open, High, Low, Close, Volume, EPS\n");
+    for(int i=0;i<size;i++){
+        fprintf(file,"%s, %.3lf, %.3lf, %.3lf, %.3lf, %.3lf, %.3lf\n", Stock[i].time, Stock[i].open, Stock[i].high, Stock[i].low, Stock[i].close, Stock[i].volume, Stock[i].eps);
+    }
+    fclose(file);
+}
+ */

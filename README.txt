@@ -6,7 +6,8 @@ Shir Toren - 204812309
 
 instructions:
 - Execute the 'run.sh' bash file
-- follow the instructions by the menu in the terminal
+- Follow the instructions by the menu in the terminal
+- In option 1 - write one symbol at a time
 
 notes:
 - make sure you enter the right stock symbols while fetching

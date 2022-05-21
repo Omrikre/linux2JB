@@ -7,9 +7,11 @@ stockData::stockData(string stockName) {
     loadDataFromFile();
     loadEPSFromFile();
 }
+
 stockData::stockData(string stockName,bool fromCSV) {
     this->stockName = stockName;
 }
+
 string stockData::printStockByYear(int year) {
     string result;
     result = this->stockName +"\n";

@@ -4,7 +4,7 @@
 # shellcheck disable=SC2068
 for var in $@
 do
-	   wget --output-document=${var}.json "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&outputsize=full&symbol=${var}&apikey=HIJ2CDXZD8CZ790Z&datatype=json"
+	 wget -q --output-document=${var}.json "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&outputsize=full&symbol=${var}&apikey=HIJ2CDXZD8CZ790Z&datatype=json"
    sed -i '1,8d' ${var}.json                          # remove the start lines
    fileName=${var}.stock
    awk 'ORS=NR%7?FS:RS' ${var}.json > ${fileName}     # organize the to one line for each date
@@ -18,7 +18,7 @@ do
 ###########################################################################################################
 
 
-   wget --output-document=${var}_EPS.json "https://www.alphavantage.co/query?function=EARNINGS&symbol=${var}&apikey=HIJ2CDXZD8CZ790Z"
+   wget -q --output-document=${var}_EPS.json "https://www.alphavantage.co/query?function=EARNINGS&symbol=${var}&apikey=HIJ2CDXZD8CZ790Z"
    sed -i '1,2d' ${var}_EPS.json                          # remove the start lines
    fileName=${var}.esp
    sed -i 's/}//g' ${var}_EPS.json                       # remove all the } character
@@ -26,7 +26,7 @@ do
    sed -i 's/\"//g' ${var}_EPS.json                       # remove all the " character
    sed -i 's/,//g' ${var}_EPS.json                        # remove all the , character
    sed -i 's/[//g' ${var}_EPS.json                       # remove all the [ character
-   sed -i  's/\s\s*/ /g' ${var}_EPS.json                   # multi space to one space
+   sed -i 's/\s\s*/ /g' ${var}_EPS.json                   # multi space to one space
    awk 'NF' ${var}_EPS.json > temp_file && mv temp_file ${var}_EPS.json
 
 # annualEarnings
