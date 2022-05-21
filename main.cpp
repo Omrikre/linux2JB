@@ -230,19 +230,38 @@ void cleanup()///close all the pipe
 
 }
 
-/*
+void importDataFromCSV(String stockName) {
+    ofstream csvFile;
+    string fileName = stockName + ".csv";
+    csvFile.open(fileName); // Create file
 
-void makeCSV(){
-    FILE* file;
-    char name[100];
-    int size=Stock[0].size;
-    strcpy(name, Stock[0].stockName);
-    strcat(name, ".csv");
-    file = fopen(name, "w+");
-    fprintf(file,"Time, Open, High, Low, Close, Volume, EPS\n");
-    for(int i=0;i<size;i++){
-        fprintf(file,"%s, %.3lf, %.3lf, %.3lf, %.3lf, %.3lf, %.3lf\n", Stock[i].time, Stock[i].open, Stock[i].high, Stock[i].low, Stock[i].close, Stock[i].volume, Stock[i].eps);
+    if (!csvFile) {
+        cerr << "Unable to create the csv file: " << fileName << endl;
+        exit(1);   // call system to stop
     }
-    fclose(file);
+
+    string line;
+    while(getline(csvFile, line)) {
+
+    }
+
+    csvFile << stockName << endl << endl;
+    csvFile << " " << "," << "Year" << "," << "Month" << "," << "Open Rate" << "," << "High Rate" << ","
+            << "Low Rate" << "," << "Close Rate" << "," << "Volume" << "," << "Reported EPS" << endl;
+
+    for (int j = 0 ; j < dataSize ; j++) {
+        csvFile << j + 1 << ","
+                << dataNodeLst[j]->getYear() << ","
+                << dataNodeLst[j]->getMonth() << ","
+                << dataNodeLst[j]->getOpenRate() << ","
+                << dataNodeLst[j]->getHighRate() << ","
+                << dataNodeLst[j]->getLowRate() << ","
+                << dataNodeLst[j]->getCloseRate() << ","
+                << dataNodeLst[j]->getVolume() << ","
+                << getEPS(dataNodeLst[j]->getYear(), dataNodeLst[j]->getMonth())
+                << endl;
+    }
+    csvFile.close();
 }
- */
+
+
