@@ -2,6 +2,6 @@
 
 cmake .
 make
-./ex2.out
+./linux2
 
 

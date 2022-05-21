@@ -53,6 +53,7 @@ void worker() {
         int readSize = 2000;
         char stringFromWorker[readSize]; /// which task to do and task data
         char workerResponse[readSize]; /// the result of the task
+        string runSymbol, symbol;
         read(fd1[READ], stringFromWorker, readSize); /// read the data
         /// convert the string - the first char is the number option
         string st(stringFromWorker);
@@ -63,7 +64,13 @@ void worker() {
 
         switch (choose) /// task
         {
-            case 1: {/// fetch stock data ---------- need to add this option
+            case 1: {/// fetch stock data
+                symbol = st.substr(0, st.find("-"));;
+                runSymbol = "./fetchStockData.sh " + symbol;
+                system(runSymbol.c_str());
+
+                string result = "\n\nFetch " + symbol + " DONE";
+                strcpy(workerResponse, &result[0]);
             }
             case 2: { /// make a list of all the fetched stocks in convert it to string with space between the stocks
                 string result = m.list_fetched_stocks();
@@ -94,10 +101,12 @@ void worker() {
         write(fd2[WRITE], workerResponse, readSize);
     }
 }
+
 void parent(){
     parentPid = getpid();
     close(fd1[READ]); /// Close reading end of first pipe
     close(fd2[WRITE]); /// Close writing end of second pipe
+    string symbol;
 
     while (true)
     {
@@ -106,7 +115,9 @@ void parent(){
         string st = to_string(input)+"-";  /// separate between the input to other data
         switch (input) {
             case 1:
-                /// stocks name input
+                cout << "Enter stocks symbol to fetch: ";
+                cin >> symbol;
+                st = st + "-" + symbol;
                 break;
             case 3:
                 st += userInputWhichStockAndYear();
@@ -137,14 +148,19 @@ void printMenu(){
 }
 int userInput(){
     /// get input and check if it is valid input
-    int input = 0;
+    int input = 0, preInput = 0;
+    bool printed = false;
     do
     {
         std::cin >> input;
-        if (input < 1 || input > 4)
-        {
-            std::cout << "Invalid Input, must be a value between 1 - 4 " << endl;
-            std::cout << "Please try again " << endl;
+        if (preInput != input)
+            printed = false;
+        if (input < 1 || input > 4) {
+            if(!printed) {
+                std::cout << "Invalid Input, must be a value between 1 - 4 " << endl;
+                std::cout << "Please try again " << endl;
+                printed = true;
+            }
         }
     } while (input < 1 || input > 4);
     return input;
