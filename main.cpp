@@ -5,6 +5,7 @@
 #include <string>
 #include <filesystem>
 #include <unistd.h>
+#include <sstream>
 
 
 int main()
@@ -230,38 +231,62 @@ void cleanup()///close all the pipe
 
 }
 
-void importDataFromCSV(String stockName) {
-    ofstream csvFile;
+void importDataFromCSV(string stockName) {
+    fstream csvFile;
     string fileName = stockName + ".csv";
-    csvFile.open(fileName); // Create file
+    csvFile.open(fileName); // open the csv file
 
-    if (!csvFile) {
-        cerr << "Unable to create the csv file: " << fileName << endl;
+    if (!csvFile) { // check if exist
+        cerr << "Unable to open the csv file: " << fileName << endl;
         exit(1);   // call system to stop
     }
 
-    string line;
-    while(getline(csvFile, line)) {
-
+    // open the stock file for the data
+    fstream stockFile;
+    string stockFileName = stockName + ".stock";
+    stockFile.open(stockFileName); // open the stock file
+    if (!stockFile) { // check if exist
+        cerr << "Unable to create the stock file: " << fileName << endl;
+        exit(1);   // call system to stop
     }
 
-    csvFile << stockName << endl << endl;
-    csvFile << " " << "," << "Year" << "," << "Month" << "," << "Open Rate" << "," << "High Rate" << ","
-            << "Low Rate" << "," << "Close Rate" << "," << "Volume" << "," << "Reported EPS" << endl;
+    string tmpWord, year, month, openRate, highRate, lowRate, closeRate, volume, reportedEPS;
+    string tmpLine;
 
-    for (int j = 0 ; j < dataSize ; j++) {
-        csvFile << j + 1 << ","
-                << dataNodeLst[j]->getYear() << ","
-                << dataNodeLst[j]->getMonth() << ","
-                << dataNodeLst[j]->getOpenRate() << ","
-                << dataNodeLst[j]->getHighRate() << ","
-                << dataNodeLst[j]->getLowRate() << ","
-                << dataNodeLst[j]->getCloseRate() << ","
-                << dataNodeLst[j]->getVolume() << ","
-                << getEPS(dataNodeLst[j]->getYear(), dataNodeLst[j]->getMonth())
-                << endl;
+    getline(csvFile, tmpLine); // get first row - name of the stock
+    getline(csvFile, tmpLine); // get second row - headers
+
+    // Read the input
+    while(!csvFile.eof()) {
+        getline(csvFile, tmpLine);
+
+        stringstream lineStream(tmpLine);
+        lineStream >> year;
+        lineStream >> tmpWord; // read ","
+        lineStream >> month;
+        lineStream >> tmpWord; // read ","
+        lineStream >> openRate;
+        lineStream >> tmpWord; // read ","
+        lineStream >> highRate;
+        lineStream >> tmpWord; // read ","
+        lineStream >> lowRate;
+        lineStream >> tmpWord; // read ","
+        lineStream >> closeRate;
+        lineStream >> tmpWord; // read ","
+        lineStream >> volume;
+        lineStream >> tmpWord; // read ","
+        lineStream >> reportedEPS;
+        lineStream >> tmpWord; // read ","
+
+        // print to destination file
+        stockFile << year << "-" << month << ": 1. open: " << openRate
+        << " 2. high: " << highRate << " 3. low: " << lowRate
+        << " 4. close: " << closeRate << " 5. volume: "  << volume
+        << " 6. reportedEPS: " << reportedEPS << endl;
     }
+
     csvFile.close();
+    stockFile.close();
 }
 
 

@@ -46,6 +46,7 @@ void parent();
 void loadDB();
 void cleanup();
 string userInputWhichStockAndYear();
+void importDataFromCSV(string stockName);
 
 
 #endif //UNTITLED_MAIN_H
